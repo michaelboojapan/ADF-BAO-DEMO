@@ -1,0 +1,33 @@
+{
+	"name": "inputEmp",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorageBao",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "employee.csv",
+				"folderPath": "input",
+				"container": "containerbao"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "depId",
+				"type": "String"
+			},
+			{
+				"name": "depName managerEmpId",
+				"type": "String"
+			}
+		]
+	}
+}
