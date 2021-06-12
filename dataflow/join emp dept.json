@@ -1,0 +1,31 @@
+{
+	"name": "join emp dept",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "inputDept",
+						"type": "DatasetReference"
+					},
+					"name": "DeptSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "inputEmp",
+						"type": "DatasetReference"
+					},
+					"name": "EmpSource"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "JoinEmptDept"
+				}
+			],
+			"script": "source(output(\n\t\tdepId as string,\n\t\t{depName managerEmpId} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource\nsource(output(\n\t\tdepId as string,\n\t\t{depName managerEmpId} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EmpSource\nDeptSource, EmpSource join(DeptSource@depId == EmpSource@depId,\n\tjoinType:'right',\n\tbroadcast: 'auto')~> JoinEmptDept"
+		}
+	}
+}
