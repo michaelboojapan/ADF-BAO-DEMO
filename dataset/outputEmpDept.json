@@ -18,15 +18,6 @@
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": [
-			{
-				"name": "depId",
-				"type": "String"
-			},
-			{
-				"name": "depName managerEmpId",
-				"type": "String"
-			}
-		]
+		"schema": []
 	}
 }
