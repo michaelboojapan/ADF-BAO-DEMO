@@ -1,0 +1,58 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "データ ファクトリ名",
+			"defaultValue": "ADF-BAO"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/join empt dept')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "inputDept",
+								"type": "DatasetReference"
+							},
+							"name": "DeptSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "inputEmp",
+								"type": "DatasetReference"
+							},
+							"name": "EmptSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "outputEmpDept",
+								"type": "DatasetReference"
+							},
+							"name": "Output"
+						}
+					],
+					"transformations": [
+						{
+							"name": "JoinEmptDept"
+						}
+					],
+					"script": "source(output(\n\t\tdepId as short,\n\t\tdepName as string,\n\t\tmanagerEmpId as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EmptSource\nDeptSource, EmptSource join(depId == { department},\n\tjoinType:'right',\n\tbroadcast: 'auto')~> JoinEmptDept\nJoinEmptDept sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tdepId as string,\n\t\t{depName managerEmpId} as string\n\t),\n\tpartitionFileNames:['dept_righ_join_emp.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Output"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
