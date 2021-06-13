@@ -7,6 +7,9 @@
 		},
 		"AzureBlobStorageBao_connectionString": {
 			"value": ""
+		},
+		"demo2EventBasedTrigger_properties_typeProperties_scope": {
+			"value": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
 		}
 	}
 }
