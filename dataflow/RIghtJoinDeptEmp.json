@@ -1,0 +1,20 @@
+{
+	"name": "RIghtJoinDeptEmp",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "inputDept",
+						"type": "DatasetReference"
+					},
+					"name": "DeptSource"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"script": "source(output(\n\t\tdepId as string,\n\t\t{depName managerEmpId} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource"
+		}
+	}
+}
