@@ -414,6 +414,37 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/demo2TrigerSchedual')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "demo2 - dataflow",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 5,
+						"startTime": "2021-06-13T00:34:00",
+						"endTime": "2021-06-13T13:34:00",
+						"timeZone": "Tokyo Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/join empt dept')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -460,34 +491,78 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/demo2TrigerSchedual')]",
+			"name": "[concat(parameters('factoryName'), '/demo1TumblingWindowTriger')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "run every hour from 06/12 - 6/14",
 				"annotations": [],
 				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "demo2 - dataflow",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "demo1 - copy data",
+						"type": "PipelineReference"
+					},
+					"parameters": {}
+				},
+				"type": "TumblingWindowTrigger",
 				"typeProperties": {
-					"recurrence": {
-						"frequency": "Minute",
-						"interval": 5,
-						"startTime": "2021-06-13T00:34:00",
-						"endTime": "2021-06-13T13:34:00",
-						"timeZone": "Tokyo Standard Time"
-					}
+					"frequency": "Hour",
+					"interval": 1,
+					"startTime": "2021-06-12T00:00:00Z",
+					"endTime": "2021-06-14T00:00:00Z",
+					"delay": "00:10:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]"
+				"[concat(variables('factoryId'), '/pipelines/demo1 - copy data')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/demo2TumblingWindowTriger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "run every hour from 06/12 -06/14, depends on trigger \"demo1TumblingWindowTrigger\"",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "demo2 - dataflow",
+						"type": "PipelineReference"
+					},
+					"parameters": {}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 1,
+					"startTime": "2021-06-12T00:00:00Z",
+					"endTime": "2021-06-14T00:00:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": [
+						{
+							"type": "TumblingWindowTriggerDependencyReference",
+							"referenceTrigger": {
+								"referenceName": "demo1TumblingWindowTriger",
+								"type": "TriggerReference"
+							}
+						}
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]",
+				"[concat(variables('factoryId'), '/triggers/demo1TumblingWindowTriger')]"
 			]
 		}
 	]
