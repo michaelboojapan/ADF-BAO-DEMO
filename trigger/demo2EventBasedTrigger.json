@@ -1,0 +1,26 @@
+{
+	"name": "demo2EventBasedTrigger",
+	"properties": {
+		"description": "if file created in input directory, this trigger will execute",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "demo2 - dataflow",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/containerbao/blobs/input/",
+			"blobPathEndsWith": "employee.csv",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}
