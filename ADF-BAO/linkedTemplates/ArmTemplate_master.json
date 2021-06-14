@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "'AzureBlobStorageBao' の 'connectionString' のセキュリティで保護された文字列"
 		},
+		"AzureSqlDatabaseDemo3_connectionString": {
+			"type": "secureString",
+			"metadata": "'AzureSqlDatabaseDemo3' の 'connectionString' のセキュリティで保護された文字列"
+		},
 		"demo2EventBasedTrigger_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
@@ -44,6 +48,9 @@
 					},
 					"AzureBlobStorageBao_connectionString": {
 						"value": "[parameters('AzureBlobStorageBao_connectionString')]"
+					},
+					"AzureSqlDatabaseDemo3_connectionString": {
+						"value": "[parameters('AzureSqlDatabaseDemo3_connectionString')]"
 					},
 					"demo2EventBasedTrigger_properties_typeProperties_scope": {
 						"value": "[parameters('demo2EventBasedTrigger_properties_typeProperties_scope')]"

@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "'AzureBlobStorageBao' の 'connectionString' のセキュリティで保護された文字列"
 		},
+		"AzureSqlDatabaseDemo3_connectionString": {
+			"type": "secureString",
+			"metadata": "'AzureSqlDatabaseDemo3' の 'connectionString' のセキュリティで保護された文字列"
+		},
 		"demo2EventBasedTrigger_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
@@ -64,6 +68,44 @@
 							"enableStaging": false,
 							"translator": {
 								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "depId",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "depId",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "depName",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "depName",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "managerEmpId",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "managerEmpId",
+											"type": "String",
+											"physicalType": "String"
+										}
+									}
+								],
 								"typeConversion": true,
 								"typeConversionSettings": {
 									"allowDataTruncation": true,
@@ -198,6 +240,88 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/join empt dept')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/demo3_ssdb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabaseDemo3",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"username": {
+							"value": "@dataset().db_username",
+							"type": "Expression"
+						},
+						"passsword": {
+							"value": "@dataset().db_password",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"db_username": {
+						"type": "string"
+					},
+					"db_password": {
+						"type": "string"
+					},
+					"db_tbl_name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "emp_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "emp_name",
+						"type": "varchar"
+					},
+					{
+						"name": "gender",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "age",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "mail_address",
+						"type": "varchar"
+					},
+					{
+						"name": "phone_no",
+						"type": "varchar"
+					},
+					{
+						"name": "salary",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "dep_id",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().db_tbl_name",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseDemo3')]"
 			]
 		},
 		{
@@ -418,6 +542,92 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseDemo3')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"username": {
+						"type": "string"
+					},
+					"passsword": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabaseDemo3_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/demo1TumblingWindowTriger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "run every hour from 06/12 - 6/14",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "demo1 - copy data",
+						"type": "PipelineReference"
+					},
+					"parameters": {}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 1,
+					"startTime": "2021-06-12T00:00:00Z",
+					"endTime": "2021-06-14T00:00:00Z",
+					"delay": "00:10:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/demo1 - copy data')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/demo2EventBasedTrigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "if file created in input directory, this trigger will execute",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "demo2 - dataflow",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/containerbao/blobs/input/",
+					"blobPathEndsWith": "employee.csv",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('demo2EventBasedTrigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/demo2TrigerSchedual')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -446,6 +656,48 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/demo2TumblingWindowTriger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "run every hour from 06/12 -06/14, depends on trigger \"demo1TumblingWindowTrigger\"",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "demo2 - dataflow",
+						"type": "PipelineReference"
+					},
+					"parameters": {}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 1,
+					"startTime": "2021-06-12T00:00:00Z",
+					"endTime": "2021-06-14T00:00:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": [
+						{
+							"type": "TumblingWindowTriggerDependencyReference",
+							"referenceTrigger": {
+								"referenceName": "demo1TumblingWindowTriger",
+								"type": "TriggerReference"
+							}
+						}
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]",
+				"[concat(variables('factoryId'), '/triggers/demo1TumblingWindowTriger')]"
 			]
 		},
 		{
@@ -492,113 +744,6 @@
 				"[concat(variables('factoryId'), '/datasets/inputDept')]",
 				"[concat(variables('factoryId'), '/datasets/inputEmp')]",
 				"[concat(variables('factoryId'), '/datasets/outputEmpDept')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo1TumblingWindowTriger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "run every hour from 06/12 - 6/14",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "demo1 - copy data",
-						"type": "PipelineReference"
-					},
-					"parameters": {}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 1,
-					"startTime": "2021-06-12T00:00:00Z",
-					"endTime": "2021-06-14T00:00:00Z",
-					"delay": "00:10:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo1 - copy data')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo2TumblingWindowTriger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "run every hour from 06/12 -06/14, depends on trigger \"demo1TumblingWindowTrigger\"",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "demo2 - dataflow",
-						"type": "PipelineReference"
-					},
-					"parameters": {}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 1,
-					"startTime": "2021-06-12T00:00:00Z",
-					"endTime": "2021-06-14T00:00:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": [
-						{
-							"type": "TumblingWindowTriggerDependencyReference",
-							"referenceTrigger": {
-								"referenceName": "demo1TumblingWindowTriger",
-								"type": "TriggerReference"
-							}
-						}
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]",
-				"[concat(variables('factoryId'), '/triggers/demo1TumblingWindowTriger')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo2EventBasedTrigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "if file created in input directory, this trigger will execute",
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "demo2 - dataflow",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/containerbao/blobs/input/",
-					"blobPathEndsWith": "employee.csv",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('demo2EventBasedTrigger_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]"
 			]
 		}
 	]
