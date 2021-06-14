@@ -68,18 +68,6 @@
 							},
 							{
 								"source": {
-									"name": " phoneNo",
-									"type": "String",
-									"physicalType": "String"
-								},
-								"sink": {
-									"name": "phone_no",
-									"type": "String",
-									"physicalType": "varchar"
-								}
-							},
-							{
-								"source": {
 									"name": " department",
 									"type": "String",
 									"physicalType": "String"
