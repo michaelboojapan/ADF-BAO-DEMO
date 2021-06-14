@@ -531,52 +531,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/join empt dept')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "inputDept",
-								"type": "DatasetReference"
-							},
-							"name": "DeptSource"
-						},
-						{
-							"dataset": {
-								"referenceName": "inputEmp",
-								"type": "DatasetReference"
-							},
-							"name": "EmptSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "outputEmpDept",
-								"type": "DatasetReference"
-							},
-							"name": "Output"
-						}
-					],
-					"transformations": [
-						{
-							"name": "JoinEmptDept"
-						}
-					],
-					"script": "source(output(\n\t\tdepId as short,\n\t\tdepName as string,\n\t\tmanagerEmpId as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EmptSource\nDeptSource, EmptSource join(depId == { department},\n\tjoinType:'right',\n\tbroadcast: 'auto')~> JoinEmptDept\nJoinEmptDept sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['dept_righ_join_emp.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Output"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/inputDept')]",
-				"[concat(variables('factoryId'), '/datasets/inputEmp')]",
-				"[concat(variables('factoryId'), '/datasets/outputEmpDept')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/demo3 - parameterize')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -593,7 +547,16 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "containerbao/input/employee.csv"
+							},
+							{
+								"name": "Destination",
+								"value": "dbo.@{pipeline().parameters.param_db_tbl_name}"
+							}
+						],
 						"typeProperties": {
 							"source": {
 								"type": "DelimitedTextSource",
@@ -750,6 +713,52 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/inputEmp')]",
 				"[concat(variables('factoryId'), '/datasets/demo3_ssdb')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/join empt dept')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "inputDept",
+								"type": "DatasetReference"
+							},
+							"name": "DeptSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "inputEmp",
+								"type": "DatasetReference"
+							},
+							"name": "EmptSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "outputEmpDept",
+								"type": "DatasetReference"
+							},
+							"name": "Output"
+						}
+					],
+					"transformations": [
+						{
+							"name": "JoinEmptDept"
+						}
+					],
+					"script": "source(output(\n\t\tdepId as short,\n\t\tdepName as string,\n\t\tmanagerEmpId as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EmptSource\nDeptSource, EmptSource join(depId == { department},\n\tjoinType:'right',\n\tbroadcast: 'auto')~> JoinEmptDept\nJoinEmptDept sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['dept_righ_join_emp.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Output"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/inputDept')]",
+				"[concat(variables('factoryId'), '/datasets/inputEmp')]",
+				"[concat(variables('factoryId'), '/datasets/outputEmpDept')]"
 			]
 		},
 		{
