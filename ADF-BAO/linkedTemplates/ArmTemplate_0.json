@@ -578,18 +578,6 @@
 								"mappings": [
 									{
 										"source": {
-											"name": "empId",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "emp_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
 											"name": " name",
 											"type": "String",
 											"physicalType": "String"
@@ -602,18 +590,6 @@
 									},
 									{
 										"source": {
-											"name": " age",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "age",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
 											"name": " mail",
 											"type": "String",
 											"physicalType": "String"
@@ -622,30 +598,6 @@
 											"name": "mail_address",
 											"type": "String",
 											"physicalType": "varchar"
-										}
-									},
-									{
-										"source": {
-											"name": " phoneNo",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "phone_no",
-											"type": "String",
-											"physicalType": "varchar"
-										}
-									},
-									{
-										"source": {
-											"name": " salary",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "salary",
-											"type": "Int32",
-											"physicalType": "int"
 										}
 									},
 									{
