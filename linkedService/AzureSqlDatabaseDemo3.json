@@ -6,14 +6,14 @@
 			"username": {
 				"type": "string"
 			},
-			"password": {
+			"passsword": {
 				"type": "string"
 			}
 		},
 		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
-			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=ssdb-server-bao.database.windows.net;Initial Catalog=ssdb-bao;User ID=@{linkedService().username};Password=@{linkedService().username}"
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=ssdb-server-bao.database.windows.net;Initial Catalog=ssdb-bao;User ID=@{linkedService().username};Password=@{linkedService().passsword}"
 		}
 	}
 }
