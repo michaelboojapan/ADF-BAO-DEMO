@@ -40,6 +40,44 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "depId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "depId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "depName",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "depName",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "managerEmpId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "managerEmpId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
