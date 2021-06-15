@@ -134,7 +134,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "inputDept",
+								"referenceName": "inputDepts",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -194,7 +194,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "inputEmp",
+								"referenceName": "inputEmps",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -205,9 +205,9 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/rawDept')]",
-				"[concat(variables('factoryId'), '/datasets/inputDept')]",
+				"[concat(variables('factoryId'), '/datasets/inputDepts')]",
 				"[concat(variables('factoryId'), '/datasets/rawEmp')]",
-				"[concat(variables('factoryId'), '/datasets/inputEmp')]"
+				"[concat(variables('factoryId'), '/datasets/inputEmps')]"
 			]
 		},
 		{
@@ -276,127 +276,20 @@
 							"expression": {
 								"value": "@equals(formatDateTime(utcnow(),'YYYY-MM-dd'), formatDateTime(activity('Get Metadata1').output.lastModified,'YYYY-MM-dd'))",
 								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Copy data 2 SQL DB",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [
-										{
-											"name": "Source",
-											"value": "containerbao/input/employee.csv"
-										},
-										{
-											"name": "Destination",
-											"value": "dbo.@{pipeline().parameters.param_db_tbl_name}"
-										}
-									],
-									"typeProperties": {
-										"source": {
-											"type": "DelimitedTextSource",
-											"storeSettings": {
-												"type": "AzureBlobStorageReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
-											},
-											"formatSettings": {
-												"type": "DelimitedTextReadSettings"
-											}
-										},
-										"sink": {
-											"type": "AzureSqlSink"
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"mappings": [
-												{
-													"source": {
-														"name": " name",
-														"type": "String",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "emp_name",
-														"type": "String",
-														"physicalType": "varchar"
-													}
-												},
-												{
-													"source": {
-														"name": " mail",
-														"type": "String",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "mail_address",
-														"type": "String",
-														"physicalType": "varchar"
-													}
-												},
-												{
-													"source": {
-														"name": " department",
-														"type": "String",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "dep_id",
-														"type": "String",
-														"physicalType": "varchar"
-													}
-												}
-											],
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "inputEmp",
-											"type": "DatasetReference",
-											"parameters": {}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "demo3_ssdb",
-											"type": "DatasetReference",
-											"parameters": {
-												"db_username": {
-													"value": "@pipeline().parameters.param_db_username",
-													"type": "Expression"
-												},
-												"db_password": {
-													"value": "@pipeline().parameters.param_db_password",
-													"type": "Expression"
-												},
-												"db_tbl_name": {
-													"value": "@pipeline().parameters.param_db_tbl_name",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								}
-							]
+							}
 						}
 					},
 					{
 						"name": "Get Metadata1",
 						"type": "GetMetadata",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "Wait1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -423,6 +316,15 @@
 								"type": "DelimitedTextReadSettings"
 							}
 						}
+					},
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
 					}
 				],
 				"parameters": {
@@ -444,9 +346,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/inputDept')]",
-				"[concat(variables('factoryId'), '/datasets/inputEmp')]",
-				"[concat(variables('factoryId'), '/datasets/demo3_ssdb')]"
+				"[concat(variables('factoryId'), '/datasets/inputDept')]"
 			]
 		},
 		{
@@ -545,7 +445,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "department.csv",
+						"fileName": "departments.csv",
 						"folderPath": "input",
 						"container": "containerbao"
 					},
@@ -570,6 +470,48 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/inputDepts')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorageBao",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "deparments.csv",
+						"folderPath": "input",
+						"container": "containerbao"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "depId",
+						"type": "String"
+					},
+					{
+						"name": "depName",
+						"type": "String"
+					},
+					{
+						"name": "managerEmpId",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorageBao')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/inputEmp')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -583,7 +525,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "employee.csv",
+						"fileName": "employees.csv",
 						"folderPath": "input",
 						"container": "containerbao"
 					},
@@ -599,6 +541,44 @@
 					},
 					{
 						"name": "depName managerEmpId",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorageBao')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/inputEmps')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorageBao",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "employees",
+						"folderPath": "input",
+						"container": "containerbao"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
 						"type": "String"
 					}
 				]
@@ -649,7 +629,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "deparment.csv",
+						"fileName": "deparments.csv",
 						"folderPath": "raw",
 						"container": "containerbao"
 					},
@@ -687,7 +667,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "employee.csv",
+						"fileName": "employees.csv",
 						"folderPath": "raw",
 						"container": "containerbao"
 					},
