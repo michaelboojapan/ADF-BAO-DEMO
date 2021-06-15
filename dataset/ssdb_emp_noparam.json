@@ -42,7 +42,8 @@
 			},
 			{
 				"name": "dep_id",
-				"type": "varchar"
+				"type": "int",
+				"precision": 10
 			}
 		],
 		"typeProperties": {
