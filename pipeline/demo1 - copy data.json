@@ -151,7 +151,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "inputEmp",
+						"referenceName": "inputEmps",
 						"type": "DatasetReference"
 					}
 				]

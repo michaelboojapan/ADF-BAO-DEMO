@@ -1,0 +1,33 @@
+{
+	"name": "inputEmps",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorageBao",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "employees",
+				"folderPath": "input",
+				"container": "containerbao"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			}
+		]
+	}
+}
