@@ -146,7 +146,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "inputDept",
+						"referenceName": "inputDepts",
 						"type": "DatasetReference"
 					},
 					"fieldList": [
