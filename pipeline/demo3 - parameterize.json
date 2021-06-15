@@ -3,8 +3,140 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data 2 SQL DB",
-				"type": "Copy",
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(formatDateTime(utcnow(),'YYYY-MM-dd'), formatDateTime(activity('Get Metadata1').output.lastModified,'YYYY-MM-dd'))",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Copy data 2 SQL DB",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": "containerbao/input/employee.csv"
+								},
+								{
+									"name": "Destination",
+									"value": "dbo.@{pipeline().parameters.param_db_tbl_name}"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "AzureSqlSink"
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": " name",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "emp_name",
+												"type": "String",
+												"physicalType": "varchar"
+											}
+										},
+										{
+											"source": {
+												"name": " mail",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "mail_address",
+												"type": "String",
+												"physicalType": "varchar"
+											}
+										},
+										{
+											"source": {
+												"name": " department",
+												"type": "String",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "dep_id",
+												"type": "String",
+												"physicalType": "varchar"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "inputEmp",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "demo3_ssdb",
+									"type": "DatasetReference",
+									"parameters": {
+										"db_username": {
+											"value": "@pipeline().parameters.param_db_username",
+											"type": "Expression"
+										},
+										"db_password": {
+											"value": "@pipeline().parameters.param_db_password",
+											"type": "Expression"
+										},
+										"db_tbl_name": {
+											"value": "@pipeline().parameters.param_db_tbl_name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -13,105 +145,23 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": [
-					{
-						"name": "Source",
-						"value": "containerbao/input/employee.csv"
-					},
-					{
-						"name": "Destination",
-						"value": "dbo.@{pipeline().parameters.param_db_tbl_name}"
-					}
-				],
+				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "DelimitedTextSource",
-						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "DelimitedTextReadSettings"
-						}
-					},
-					"sink": {
-						"type": "AzureSqlSink"
-					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"name": " name",
-									"type": "String",
-									"physicalType": "String"
-								},
-								"sink": {
-									"name": "emp_name",
-									"type": "String",
-									"physicalType": "varchar"
-								}
-							},
-							{
-								"source": {
-									"name": " mail",
-									"type": "String",
-									"physicalType": "String"
-								},
-								"sink": {
-									"name": "mail_address",
-									"type": "String",
-									"physicalType": "varchar"
-								}
-							},
-							{
-								"source": {
-									"name": " department",
-									"type": "String",
-									"physicalType": "String"
-								},
-								"sink": {
-									"name": "dep_id",
-									"type": "String",
-									"physicalType": "varchar"
-								}
-							}
-						],
-						"typeConversion": true,
-						"typeConversionSettings": {
-							"allowDataTruncation": true,
-							"treatBooleanAsNumber": false
-						}
-					}
-				},
-				"inputs": [
-					{
-						"referenceName": "inputEmp",
+					"dataset": {
+						"referenceName": "inputDept",
 						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"lastModified"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
 					}
-				],
-				"outputs": [
-					{
-						"referenceName": "demo3_ssdb",
-						"type": "DatasetReference",
-						"parameters": {
-							"db_username": {
-								"value": "@pipeline().parameters.param_db_username",
-								"type": "Expression"
-							},
-							"db_password": {
-								"value": "@pipeline().parameters.param_db_password",
-								"type": "Expression"
-							},
-							"db_tbl_name": {
-								"value": "@pipeline().parameters.param_db_tbl_name",
-								"type": "Expression"
-							}
-						}
-					}
-				]
+				}
 			}
 		],
 		"parameters": {
@@ -123,6 +173,11 @@
 			},
 			"param_db_tbl_name": {
 				"type": "string"
+			}
+		},
+		"variables": {
+			"table_name": {
+				"type": "String"
 			}
 		},
 		"annotations": []
