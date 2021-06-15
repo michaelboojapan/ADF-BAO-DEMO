@@ -6,12 +6,46 @@
 			"type": "string",
 			"metadata": "データ ファクトリ名",
 			"defaultValue": "ADF-BAO"
+		},
+		"demo2EventBasedTrigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/demo2EventBasedTrigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "if file created in input directory, this trigger will execute",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "demo2 - dataflow",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/containerbao/blobs/input/",
+					"blobPathEndsWith": "employee.csv",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('demo2EventBasedTrigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/demo2TrigerSchedual')]",
 			"type": "Microsoft.DataFactory/factories/triggers",

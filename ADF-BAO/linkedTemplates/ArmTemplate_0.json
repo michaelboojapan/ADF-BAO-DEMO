@@ -30,10 +30,6 @@
 		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name": {
 			"type": "string",
 			"defaultValue": "employees"
-		},
-		"demo2EventBasedTrigger_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
 		}
 	},
 	"variables": {
@@ -811,7 +807,7 @@
 							"name": "filterHrOut"
 						}
 					],
-					"script": "parameters{\n\tdf_db_username as string,\n\tdf_db_password as string,\n\tdf_db_table_name as string\n}\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> empSource\nempSource filter(notEquals({ department}, 3)) ~> filterHrOut\nfilterHrOut sink(allowSchemaDrift: false,\n\tvalidateSchema: true,\n\tinput(\n\t\temp_id as integer,\n\t\temp_name as string,\n\t\tgender as integer,\n\t\tage as integer,\n\t\tmail_address as string,\n\t\tphone_no as string,\n\t\tsalary as integer,\n\t\tdep_id as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\temp_id = empId,\n\t\temp_name = { name},\n\t\tgender = { gendar},\n\t\tage = { age},\n\t\tmail_address = { mail},\n\t\tphone_no = { phoneNo},\n\t\tsalary = { salary},\n\t\tdep_id = { department}\n\t)) ~> inserttossdb"
+					"script": "source(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> empSource\nempSource filter(notEquals({ department}, 3)) ~> filterHrOut\nfilterHrOut sink(allowSchemaDrift: false,\n\tvalidateSchema: true,\n\tinput(\n\t\temp_id as integer,\n\t\temp_name as string,\n\t\tgender as integer,\n\t\tage as integer,\n\t\tmail_address as string,\n\t\tphone_no as string,\n\t\tsalary as integer,\n\t\tdep_id as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\temp_id = empId,\n\t\temp_name = { name},\n\t\tgender = { gendar},\n\t\tage = { age},\n\t\tmail_address = { mail},\n\t\tphone_no = { phoneNo},\n\t\tsalary = { salary},\n\t\tdep_id = { department}\n\t)) ~> inserttossdb"
 				}
 			},
 			"dependsOn": [
@@ -910,6 +906,49 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/demo4')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "insert emp to ssdb",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"empSource": {},
+									"inserttossdb": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/insert emp to ssdb')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/demo1TumblingWindowTriger')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -975,38 +1014,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/demo3 - parameterize')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo2EventBasedTrigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "if file created in input directory, this trigger will execute",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "demo2 - dataflow",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/containerbao/blobs/input/",
-					"blobPathEndsWith": "employee.csv",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('demo2EventBasedTrigger_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]"
 			]
 		}
 	]

@@ -79,9 +79,6 @@
 					},
 					"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name": {
 						"value": "[parameters('demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name')]"
-					},
-					"demo2EventBasedTrigger_properties_typeProperties_scope": {
-						"value": "[parameters('demo2EventBasedTrigger_properties_typeProperties_scope')]"
 					}
 				}
 			},
@@ -100,6 +97,9 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"demo2EventBasedTrigger_properties_typeProperties_scope": {
+						"value": "[parameters('demo2EventBasedTrigger_properties_typeProperties_scope')]"
 					}
 				}
 			},
