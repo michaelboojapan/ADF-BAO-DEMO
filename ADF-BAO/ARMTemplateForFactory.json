@@ -563,7 +563,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "employees",
+						"fileName": "employees.csv",
 						"folderPath": "input",
 						"container": "containerbao"
 					},
