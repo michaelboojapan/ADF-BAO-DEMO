@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "department.csv",
+				"fileName": "departments.csv",
 				"folderPath": "input",
 				"container": "containerbao"
 			},
