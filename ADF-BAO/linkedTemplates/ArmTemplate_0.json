@@ -722,6 +722,12 @@
 									"typeProperties": {
 										"source": {
 											"type": "DelimitedTextSource",
+											"additionalColumns": [
+												{
+													"name": "test1",
+													"value": "$$COLUMN:depId"
+												}
+											],
 											"storeSettings": {
 												"type": "AzureBlobStorageReadSettings",
 												"recursive": true,
@@ -735,6 +741,7 @@
 											"type": "AzureSqlSink"
 										},
 										"enableStaging": false,
+										"enableSkipIncompatibleRow": true,
 										"translator": {
 											"type": "TabularTranslator",
 											"mappings": [
