@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "'AzureSqlDatabaseDemo3' の 'connectionString' のセキュリティで保護された文字列"
 		},
+		"AzureSqlDatabaseWithNoParam_connectionString": {
+			"type": "secureString",
+			"metadata": "'AzureSqlDatabaseWithNoParam' の 'connectionString' のセキュリティで保護された文字列"
+		},
 		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username": {
 			"type": "string",
 			"defaultValue": "bao"
@@ -66,6 +70,19 @@
 				"type": "AzureSqlDatabase",
 				"typeProperties": {
 					"connectionString": "[parameters('AzureSqlDatabaseDemo3_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseWithNoParam')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabaseWithNoParam_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -438,6 +455,64 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ssdb_emp_noparam')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabaseWithNoParam",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "emp_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "emp_name",
+						"type": "varchar"
+					},
+					{
+						"name": "gender",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "age",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "mail_address",
+						"type": "varchar"
+					},
+					{
+						"name": "phone_no",
+						"type": "varchar"
+					},
+					{
+						"name": "salary",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "dep_id",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employees"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseWithNoParam')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/demo1 - copy data')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -707,6 +782,44 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/insert emp to ssdb')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "inputEmps",
+								"type": "DatasetReference"
+							},
+							"name": "empSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ssdb_emp_noparam",
+								"type": "DatasetReference"
+							},
+							"name": "inserttossdb"
+						}
+					],
+					"transformations": [
+						{
+							"name": "filterHrOut"
+						}
+					],
+					"script": "parameters{\n\tdf_db_username as string,\n\tdf_db_password as string,\n\tdf_db_table_name as string\n}\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> empSource\nempSource filter(notEquals({ department}, 3)) ~> filterHrOut\nfilterHrOut sink(allowSchemaDrift: false,\n\tvalidateSchema: true,\n\tinput(\n\t\temp_id as integer,\n\t\temp_name as string,\n\t\tgender as integer,\n\t\tage as integer,\n\t\tmail_address as string,\n\t\tphone_no as string,\n\t\tsalary as integer,\n\t\tdep_id as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> inserttossdb"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/inputEmps')]",
+				"[concat(variables('factoryId'), '/datasets/ssdb_emp_noparam')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/join empt dept')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -743,7 +856,7 @@
 							"name": "JoinEmptDept"
 						}
 					],
-					"script": "source(output(\n\t\tdepId as short,\n\t\tdepName as string,\n\t\tmanagerEmpId as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EmptSource\nDeptSource, EmptSource join(depId == { department},\n\tjoinType:'right',\n\tbroadcast: 'auto')~> JoinEmptDept\nJoinEmptDept sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['dept_righ_join_emp.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Output"
+					"script": "source(output(\n\t\tdepId as short,\n\t\tdepName as string,\n\t\tmanagerEmpId as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EmptSource\nDeptSource, EmptSource join(depId == { department},\n\tjoinType:'right',\n\tbroadcast: 'auto')~> JoinEmptDept\nJoinEmptDept sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['dept_righ_join_emp.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tdepId,\n\t\tdepName,\n\t\tmanagerEmpId,\n\t\tempId,\n\t\t{ name},\n\t\t{ gendar},\n\t\t{ age},\n\t\t{ mail},\n\t\t{ phoneNo},\n\t\t{ salary},\n\t\t{ department}\n\t)) ~> Output"
 				}
 			},
 			"dependsOn": [
@@ -894,79 +1007,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo2TrigerSchedual')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "demo2 - dataflow",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Minute",
-						"interval": 5,
-						"startTime": "2021-06-13T00:34:00",
-						"endTime": "2021-06-13T13:34:00",
-						"timeZone": "Tokyo Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo2TumblingWindowTriger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "run every hour from 06/12 -06/14, depends on trigger \"demo1TumblingWindowTrigger\"",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "demo2 - dataflow",
-						"type": "PipelineReference"
-					},
-					"parameters": {}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 1,
-					"startTime": "2021-06-12T00:00:00Z",
-					"endTime": "2021-06-14T00:00:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": [
-						{
-							"type": "TumblingWindowTriggerDependencyReference",
-							"referenceTrigger": {
-								"referenceName": "demo1TumblingWindowTriger",
-								"type": "TriggerReference"
-							}
-						}
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo2 - dataflow')]",
-				"[concat(variables('factoryId'), '/triggers/demo1TumblingWindowTriger')]"
 			]
 		}
 	]

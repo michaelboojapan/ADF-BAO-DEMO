@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "'AzureSqlDatabaseDemo3' の 'connectionString' のセキュリティで保護された文字列"
 		},
+		"AzureSqlDatabaseWithNoParam_connectionString": {
+			"type": "secureString",
+			"metadata": "'AzureSqlDatabaseWithNoParam' の 'connectionString' のセキュリティで保護された文字列"
+		},
 		"demo2EventBasedTrigger_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
@@ -64,6 +68,9 @@
 					"AzureSqlDatabaseDemo3_connectionString": {
 						"value": "[parameters('AzureSqlDatabaseDemo3_connectionString')]"
 					},
+					"AzureSqlDatabaseWithNoParam_connectionString": {
+						"value": "[parameters('AzureSqlDatabaseWithNoParam_connectionString')]"
+					},
 					"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username": {
 						"value": "[parameters('demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username')]"
 					},
@@ -79,6 +86,26 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "ADF-BAO_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ADF-BAO_ArmTemplate_0')]"
+			]
 		}
 	]
 }
