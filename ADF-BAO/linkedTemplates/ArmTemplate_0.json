@@ -4,20 +4,20 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "データ ファクトリ名",
+			"metadata": "Data Factory name",
 			"defaultValue": "ADF-BAO"
 		},
 		"AzureBlobStorageBao_connectionString": {
 			"type": "secureString",
-			"metadata": "'AzureBlobStorageBao' の 'connectionString' のセキュリティで保護された文字列"
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorageBao'"
 		},
 		"AzureSqlDatabaseDemo3_connectionString": {
 			"type": "secureString",
-			"metadata": "'AzureSqlDatabaseDemo3' の 'connectionString' のセキュリティで保護された文字列"
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseDemo3'"
 		},
 		"AzureSqlDatabaseWithNoParam_connectionString": {
 			"type": "secureString",
-			"metadata": "'AzureSqlDatabaseWithNoParam' の 'connectionString' のセキュリティで保護された文字列"
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseWithNoParam'"
 		},
 		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username": {
 			"type": "string",
@@ -705,7 +705,112 @@
 							"expression": {
 								"value": "@equals(formatDateTime(utcnow(),'YYYY-MM-dd'), formatDateTime(activity('Get Metadata1').output.lastModified,'YYYY-MM-dd'))",
 								"type": "Expression"
-							}
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink"
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "depId",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "dep_id",
+														"type": "Int32",
+														"physicalType": "int"
+													}
+												},
+												{
+													"source": {
+														"name": "depName",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "dep_name",
+														"type": "String",
+														"physicalType": "varchar"
+													}
+												},
+												{
+													"source": {
+														"name": "managerEmpId",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "manager_emp_id",
+														"type": "Int32",
+														"physicalType": "int"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "inputDepts",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "demo3_ssdb",
+											"type": "DatasetReference",
+											"parameters": {
+												"db_username": {
+													"value": "@pipeline().parameters.param_db_username",
+													"type": "Expression"
+												},
+												"db_password": {
+													"value": "@pipeline().parameters.param_db_password",
+													"type": "Expression"
+												},
+												"db_tbl_name": {
+													"value": "@pipeline().parameters.param_db_tbl_name",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
 						}
 					},
 					{
@@ -775,7 +880,9 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/inputDept')]"
+				"[concat(variables('factoryId'), '/datasets/inputDept')]",
+				"[concat(variables('factoryId'), '/datasets/inputDepts')]",
+				"[concat(variables('factoryId'), '/datasets/demo3_ssdb')]"
 			]
 		},
 		{
