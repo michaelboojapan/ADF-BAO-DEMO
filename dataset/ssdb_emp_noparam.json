@@ -1,0 +1,53 @@
+{
+	"name": "ssdb_emp_noparam",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabaseWithNoParam",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "emp_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "emp_name",
+				"type": "varchar"
+			},
+			{
+				"name": "gender",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "age",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "mail_address",
+				"type": "varchar"
+			},
+			{
+				"name": "phone_no",
+				"type": "varchar"
+			},
+			{
+				"name": "salary",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "dep_id",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "employees"
+		}
+	}
+}

@@ -1,0 +1,32 @@
+{
+	"name": "insert emp to ssdb",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "inputEmps",
+						"type": "DatasetReference"
+					},
+					"name": "empSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ssdb_emp_noparam",
+						"type": "DatasetReference"
+					},
+					"name": "inserttossdb"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filterHrOut"
+				}
+			],
+			"script": "parameters{\n\tdf_db_username as string,\n\tdf_db_password as string,\n\tdf_db_table_name as string\n}\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> empSource\nempSource filter(notEquals({ department}, 3)) ~> filterHrOut\nfilterHrOut sink(allowSchemaDrift: false,\n\tvalidateSchema: true,\n\tinput(\n\t\temp_id as integer,\n\t\temp_name as string,\n\t\tgender as integer,\n\t\tage as integer,\n\t\tmail_address as string,\n\t\tphone_no as string,\n\t\tsalary as integer,\n\t\tdep_id as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> inserttossdb"
+		}
+	}
+}
