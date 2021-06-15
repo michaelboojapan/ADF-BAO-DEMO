@@ -409,7 +409,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
-								"referenceName": "inputDept",
+								"referenceName": "inputDepts",
 								"type": "DatasetReference",
 								"parameters": {}
 							},
@@ -455,7 +455,6 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/inputDept')]",
 				"[concat(variables('factoryId'), '/datasets/inputDepts')]",
 				"[concat(variables('factoryId'), '/datasets/demo3_ssdb')]"
 			]
