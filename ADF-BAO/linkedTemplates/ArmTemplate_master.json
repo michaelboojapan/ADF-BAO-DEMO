@@ -4,28 +4,28 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "データ ファクトリ名",
+			"metadata": "Data Factory name",
 			"defaultValue": "ADF-BAO"
 		},
 		"AzureBlobStorageBao_connectionString": {
 			"type": "secureString",
-			"metadata": "'AzureBlobStorageBao' の 'connectionString' のセキュリティで保護された文字列"
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorageBao'"
 		},
 		"AzureSqlDatabaseDemo3_connectionString": {
 			"type": "secureString",
-			"metadata": "'AzureSqlDatabaseDemo3' の 'connectionString' のセキュリティで保護された文字列"
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseDemo3'"
 		},
 		"AzureSqlDatabaseWithNoParam_connectionString": {
 			"type": "secureString",
-			"metadata": "'AzureSqlDatabaseWithNoParam' の 'connectionString' のセキュリティで保護された文字列"
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseWithNoParam'"
 		},
 		"Salesforce1_password": {
 			"type": "secureString",
-			"metadata": "'Salesforce1' の 'password' のセキュリティで保護された文字列"
+			"metadata": "Secure string for 'password' of 'Salesforce1'"
 		},
 		"Salesforce1_securityToken": {
 			"type": "secureString",
-			"metadata": "'Salesforce1' の 'securityToken' のセキュリティで保護された文字列"
+			"metadata": "Secure string for 'securityToken' of 'Salesforce1'"
 		},
 		"Salesforce1_properties_typeProperties_environmentUrl": {
 			"type": "string",
@@ -53,11 +53,11 @@
 		},
 		"containerUri": {
 			"type": "string",
-			"metadata": "リンクされた ARM テンプレートを含むストレージ アカウントの URI"
+			"metadata": "URI to storage account containing linked ARM templates"
 		},
 		"containerSasToken": {
 			"type": "string",
-			"metadata": "リンクされた ARM テンプレートを格納するストレージ アカウントへの SAS トークン"
+			"metadata": "Sas token to storage account containing linked ARM templates"
 		}
 	},
 	"variables": {
