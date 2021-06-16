@@ -36,11 +36,11 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "ex_id_str__c",
+									"name": "ex_id__c",
 									"type": "String"
 								},
 								"sink": {
-									"name": "ex_id_str__c",
+									"name": "ex_id__c",
 									"type": "String",
 									"physicalType": "String"
 								}

@@ -30,7 +30,7 @@
 						"type": "SalesforceSink",
 						"writeBatchSize": 5000,
 						"writeBehavior": "upsert",
-						"externalIdFieldName": "ex_id_str__c",
+						"externalIdFieldName": "ex_id__c",
 						"ignoreNullValues": true
 					},
 					"enableStaging": false,
@@ -40,12 +40,12 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "ex_id_str__c",
+									"name": "ex_id__c",
 									"type": "String",
 									"physicalType": "String"
 								},
 								"sink": {
-									"name": "ex_id_str__c",
+									"name": "ex_id__c",
 									"type": "String"
 								}
 							},
