@@ -14,6 +14,18 @@
 		"AzureSqlDatabaseWithNoParam_connectionString": {
 			"value": ""
 		},
+		"Salesforce1_password": {
+			"value": ""
+		},
+		"Salesforce1_securityToken": {
+			"value": ""
+		},
+		"Salesforce1_properties_typeProperties_environmentUrl": {
+			"value": "https://floboard2-dev-ed.my.salesforce.com"
+		},
+		"Salesforce1_properties_typeProperties_username": {
+			"value": "etl.dev.user001@gmail.com"
+		},
 		"demo2EventBasedTrigger_properties_typeProperties_scope": {
 			"value": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
 		},

@@ -4,32 +4,36 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "Data Factory name",
+			"metadata": "データ ファクトリ名",
 			"defaultValue": "ADF-BAO"
 		},
 		"AzureBlobStorageBao_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorageBao'"
+			"metadata": "'AzureBlobStorageBao' の 'connectionString' のセキュリティで保護された文字列"
 		},
 		"AzureSqlDatabaseDemo3_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseDemo3'"
+			"metadata": "'AzureSqlDatabaseDemo3' の 'connectionString' のセキュリティで保護された文字列"
 		},
 		"AzureSqlDatabaseWithNoParam_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseWithNoParam'"
+			"metadata": "'AzureSqlDatabaseWithNoParam' の 'connectionString' のセキュリティで保護された文字列"
 		},
-		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username": {
-			"type": "string",
-			"defaultValue": "bao"
+		"Salesforce1_password": {
+			"type": "secureString",
+			"metadata": "'Salesforce1' の 'password' のセキュリティで保護された文字列"
 		},
-		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_password": {
-			"type": "string",
-			"defaultValue": "Mb864273"
+		"Salesforce1_securityToken": {
+			"type": "secureString",
+			"metadata": "'Salesforce1' の 'securityToken' のセキュリティで保護された文字列"
 		},
-		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name": {
+		"Salesforce1_properties_typeProperties_environmentUrl": {
 			"type": "string",
-			"defaultValue": "employees"
+			"defaultValue": "https://floboard2-dev-ed.my.salesforce.com"
+		},
+		"Salesforce1_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "etl.dev.user001@gmail.com"
 		}
 	},
 	"variables": {
@@ -82,6 +86,49 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Salesforce1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Salesforce",
+				"typeProperties": {
+					"environmentUrl": "[parameters('Salesforce1_properties_typeProperties_environmentUrl')]",
+					"username": "[parameters('Salesforce1_properties_typeProperties_username')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('Salesforce1_password')]"
+					},
+					"securityToken": {
+						"type": "SecureString",
+						"value": "[parameters('Salesforce1_securityToken')]"
+					},
+					"apiVersion": "48.0"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SalesforceObject1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Salesforce1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SalesforceObject",
+				"schema": [],
+				"typeProperties": {
+					"objectApiName": "Account"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Salesforce1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/demo3_ssdb')]",
@@ -351,6 +398,44 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/outputSassfile')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorageBao",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "saasfile.csv",
+						"folderPath": "output",
+						"container": "containerbao"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ex_id_str__c",
+						"type": "String"
+					},
+					{
+						"name": "Name",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorageBao')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/rawDept')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -507,6 +592,100 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseWithNoParam')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/demo - onpre to salsforce')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SalesforceSink",
+								"writeBatchSize": 5000,
+								"writeBehavior": "insert",
+								"ignoreNullValues": true
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "ex_id_str__c",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ex_id_str__c",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Name",
+											"type": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "outputSassfile",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SalesforceObject1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/outputSassfile')]",
+				"[concat(variables('factoryId'), '/datasets/SalesforceObject1')]"
 			]
 		},
 		{
@@ -892,6 +1071,97 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/demo5 - saas to adf')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SalesforceSource",
+								"readBehavior": "query"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "ex_id_str__c",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ex_id_str__c",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SalesforceObject1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "outputSassfile",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SalesforceObject1')]",
+				"[concat(variables('factoryId'), '/datasets/outputSassfile')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/insert emp to ssdb')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -930,207 +1200,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/inputEmps')]",
 				"[concat(variables('factoryId'), '/datasets/ssdb_emp_noparam')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/join empt dept')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "inputDept",
-								"type": "DatasetReference"
-							},
-							"name": "DeptSource"
-						},
-						{
-							"dataset": {
-								"referenceName": "inputEmp",
-								"type": "DatasetReference"
-							},
-							"name": "EmptSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "outputEmpDept",
-								"type": "DatasetReference"
-							},
-							"name": "Output"
-						}
-					],
-					"transformations": [
-						{
-							"name": "JoinEmptDept"
-						}
-					],
-					"script": "source(output(\n\t\tdepId as short,\n\t\tdepName as string,\n\t\tmanagerEmpId as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EmptSource\nDeptSource, EmptSource join(depId == { department},\n\tjoinType:'right',\n\tbroadcast: 'auto')~> JoinEmptDept\nJoinEmptDept sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['dept_righ_join_emp.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tdepId,\n\t\tdepName,\n\t\tmanagerEmpId,\n\t\tempId,\n\t\t{ name},\n\t\t{ gendar},\n\t\t{ age},\n\t\t{ mail},\n\t\t{ phoneNo},\n\t\t{ salary},\n\t\t{ department}\n\t)) ~> Output"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/inputDept')]",
-				"[concat(variables('factoryId'), '/datasets/inputEmp')]",
-				"[concat(variables('factoryId'), '/datasets/outputEmpDept')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo2 - dataflow')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "join empt dept data flow",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "join empt dept",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"DeptSource": {},
-									"EmptSource": {},
-									"Output": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/join empt dept')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo4')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "1.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "insert emp to ssdb",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"empSource": {},
-									"inserttossdb": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/insert emp to ssdb')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo1TumblingWindowTriger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "run every hour from 06/12 - 6/14",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "demo1 - copy data",
-						"type": "PipelineReference"
-					},
-					"parameters": {}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 1,
-					"startTime": "2021-06-12T00:00:00Z",
-					"endTime": "2021-06-14T00:00:00Z",
-					"delay": "00:10:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo1 - copy data')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo3_trigger1')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "demo3 - parameterize",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"param_db_username": "[parameters('demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username')]",
-							"param_db_password": "[parameters('demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_password')]",
-							"param_db_tbl_name": "[parameters('demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Minute",
-						"interval": 5,
-						"startTime": "2021-06-14T22:00:00",
-						"endTime": "2021-06-14T22:10:00",
-						"timeZone": "Tokyo Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/demo3 - parameterize')]"
 			]
 		}
 	]
