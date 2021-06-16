@@ -70,7 +70,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "outputEmpDept",
+						"referenceName": "outputSassFile",
 						"type": "DatasetReference"
 					}
 				]
