@@ -30,7 +30,7 @@
 						"type": "SalesforceSink",
 						"writeBatchSize": 5000,
 						"writeBehavior": "upsert",
-						"externalIdFieldName": "ex_id__c",
+						"externalIdFieldName": "ex_id_str__c",
 						"ignoreNullValues": true
 					},
 					"enableStaging": false,
