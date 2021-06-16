@@ -30,8 +30,8 @@
 						"type": "SalesforceSink",
 						"writeBatchSize": 5000,
 						"writeBehavior": "upsert",
-						"externalIdFieldName": "unique_id_c",
-						"ignoreNullValues": false
+						"externalIdFieldName": "unique_id__c",
+						"ignoreNullValues": true
 					},
 					"enableStaging": false,
 					"translator": {
@@ -51,12 +51,10 @@
 							{
 								"source": {
 									"name": "unique_id__c",
-									"type": "String",
 									"physicalType": "String"
 								},
 								"sink": {
-									"name": "unique_id__c",
-									"type": "String"
+									"name": "unique_id__c"
 								}
 							}
 						],

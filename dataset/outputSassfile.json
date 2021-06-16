@@ -21,7 +21,7 @@
 		},
 		"schema": [
 			{
-				"name": "Id",
+				"name": "unique_id__c",
 				"type": "String"
 			},
 			{
