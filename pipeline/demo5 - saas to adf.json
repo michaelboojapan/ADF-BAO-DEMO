@@ -36,11 +36,12 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "Id",
+									"name": "unique_id__c",
 									"type": "String"
 								},
 								"sink": {
-									"name": "id",
+									"name": "unique_id__c",
+									"type": "String",
 									"physicalType": "String"
 								}
 							},
@@ -50,7 +51,8 @@
 									"type": "String"
 								},
 								"sink": {
-									"name": "name",
+									"name": "Name",
+									"type": "String",
 									"physicalType": "String"
 								}
 							}
@@ -70,7 +72,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "outputSassFile",
+						"referenceName": "outputSassfile",
 						"type": "DatasetReference"
 					}
 				]

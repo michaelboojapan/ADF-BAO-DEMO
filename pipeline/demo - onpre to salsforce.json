@@ -17,6 +17,12 @@
 				"typeProperties": {
 					"source": {
 						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "External ID Field",
+								"value": "$$COLUMN:Id"
+							}
+						],
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
 							"recursive": true,
@@ -30,7 +36,7 @@
 						"type": "SalesforceSink",
 						"writeBatchSize": 5000,
 						"writeBehavior": "upsert",
-						"externalIdFieldName": "id",
+						"externalIdFieldName": "External ID Field",
 						"ignoreNullValues": false
 					},
 					"enableStaging": false,
@@ -39,9 +45,7 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "id",
-									"type": "String",
-									"physicalType": "String"
+									"name": "Id"
 								},
 								"sink": {
 									"name": "Id",
@@ -50,9 +54,7 @@
 							},
 							{
 								"source": {
-									"name": "name",
-									"type": "String",
-									"physicalType": "String"
+									"name": "Name"
 								},
 								"sink": {
 									"name": "Name",
@@ -69,7 +71,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "outputSassFile",
+						"referenceName": "outputSassfile",
 						"type": "DatasetReference"
 					}
 				],
