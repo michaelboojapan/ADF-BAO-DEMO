@@ -29,14 +29,25 @@
 					"sink": {
 						"type": "SalesforceSink",
 						"writeBatchSize": 5000,
-						"writeBehavior": "upsert",
-						"externalIdFieldName": "ex_id_str__c",
+						"writeBehavior": "insert",
 						"ignoreNullValues": true
 					},
 					"enableStaging": false,
+					"validateDataConsistency": false,
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
+							{
+								"source": {
+									"name": "ex_id_str__c",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "ex_id_str__c",
+									"type": "String"
+								}
+							},
 							{
 								"source": {
 									"name": "Name",
