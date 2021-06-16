@@ -36,22 +36,22 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "unique_id__c",
+									"name": "Name",
 									"type": "String"
 								},
 								"sink": {
-									"name": "unique_id__c",
+									"name": "Name",
 									"type": "String",
 									"physicalType": "String"
 								}
 							},
 							{
 								"source": {
-									"name": "Name",
+									"name": "ex_id__c",
 									"type": "String"
 								},
 								"sink": {
-									"name": "Name",
+									"name": "ex_id__c",
 									"type": "String",
 									"physicalType": "String"
 								}
