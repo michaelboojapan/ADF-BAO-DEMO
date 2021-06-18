@@ -1,0 +1,32 @@
+{
+	"name": "transform sass",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "outputSassfile",
+						"type": "DatasetReference"
+					},
+					"name": "sourceSass"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "outputSassfile",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumn1"
+				}
+			],
+			"script": "source(output(\n\t\tex_id_str__c as string,\n\t\tName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourceSass\nsourceSass derive(Name = iif(isInteger(substring(Name, 10,11)), substring(Name, 0,10) +substring(Name, 11), Name)) ~> DerivedColumn1\nDerivedColumn1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tex_id_str__c as string,\n\t\tName as string\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+		}
+	}
+}
