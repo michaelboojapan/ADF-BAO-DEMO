@@ -436,6 +436,43 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/outputSassfile_copy1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorageBao",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "output",
+						"container": "containerbao"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ex_id_str__c",
+						"type": "String"
+					},
+					{
+						"name": "Name",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorageBao')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/rawDept')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1160,47 +1197,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SalesforceObject1')]",
 				"[concat(variables('factoryId'), '/datasets/outputSassfile')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/insert emp to ssdb')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "inputEmps",
-								"type": "DatasetReference"
-							},
-							"name": "empSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ssdb_emp_noparam",
-								"type": "DatasetReference"
-							},
-							"name": "inserttossdb"
-						}
-					],
-					"transformations": [
-						{
-							"name": "filterHrOut"
-						},
-						{
-							"name": "derive"
-						}
-					],
-					"script": "source(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> empSource\nempSource filter(notEquals({ department}, 3)) ~> filterHrOut\nfilterHrOut derive({ phoneNo} = iif(isNull({ phoneNo}), 'unknown', replace({ phoneNo}, '-', '')),\n\t\t{ gendar} = iif(isNull({ gendar}), 2, iif(equals({ gendar},'femail'), 0, 1))) ~> derive\nderive sink(allowSchemaDrift: false,\n\tvalidateSchema: true,\n\tinput(\n\t\temp_id as integer,\n\t\temp_name as string,\n\t\tgender as integer,\n\t\tage as integer,\n\t\tmail_address as string,\n\t\tphone_no as string,\n\t\tsalary as integer,\n\t\tdep_id as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\temp_id = empId,\n\t\temp_name = { name},\n\t\tage = { age},\n\t\tmail_address = { mail},\n\t\tdep_id = { department},\n\t\tgender = { gendar},\n\t\tphone_no = { phoneNo},\n\t\tsalary = { salary}\n\t)) ~> inserttossdb"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/inputEmps')]",
-				"[concat(variables('factoryId'), '/datasets/ssdb_emp_noparam')]"
 			]
 		}
 	]

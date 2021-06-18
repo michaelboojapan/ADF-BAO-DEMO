@@ -29,6 +29,44 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/insert emp to ssdb')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "inputEmps",
+								"type": "DatasetReference"
+							},
+							"name": "empSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ssdb_emp_noparam",
+								"type": "DatasetReference"
+							},
+							"name": "inserttossdb"
+						}
+					],
+					"transformations": [
+						{
+							"name": "filterHrOut"
+						},
+						{
+							"name": "derive"
+						}
+					],
+					"script": "source(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> empSource\nempSource filter(notEquals({ department}, 3)) ~> filterHrOut\nfilterHrOut derive({ phoneNo} = iif(isNull({ phoneNo}), 'unknown', replace({ phoneNo}, '-', '')),\n\t\t{ gendar} = iif(isNull({ gendar}), 2, iif(equals({ gendar},'femail'), 0, 1))) ~> derive\nderive sink(allowSchemaDrift: false,\n\tvalidateSchema: true,\n\tinput(\n\t\temp_id as integer,\n\t\temp_name as string,\n\t\tgender as integer,\n\t\tage as integer,\n\t\tmail_address as string,\n\t\tphone_no as string,\n\t\tsalary as integer,\n\t\tdep_id as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\temp_id = empId,\n\t\temp_name = { name},\n\t\tage = { age},\n\t\tmail_address = { mail},\n\t\tdep_id = { department},\n\t\tgender = { gendar},\n\t\tphone_no = { phoneNo},\n\t\tsalary = { salary}\n\t)) ~> inserttossdb"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/join empt dept')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -66,6 +104,41 @@
 						}
 					],
 					"script": "source(output(\n\t\tdepId as short,\n\t\tdepName as string,\n\t\tmanagerEmpId as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DeptSource\nsource(output(\n\t\tempId as short,\n\t\t{ name} as string,\n\t\t{ gendar} as string,\n\t\t{ age} as short,\n\t\t{ mail} as string,\n\t\t{ phoneNo} as string,\n\t\t{ salary} as integer,\n\t\t{ department} as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> EmptSource\nDeptSource, EmptSource join(depId == { department},\n\tjoinType:'right',\n\tbroadcast: 'auto')~> JoinEmptDept\nJoinEmptDept sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['dept_righ_join_emp.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tdepId,\n\t\tdepName,\n\t\tmanagerEmpId,\n\t\tempId,\n\t\t{ name},\n\t\t{ gendar},\n\t\t{ age},\n\t\t{ mail},\n\t\t{ phoneNo},\n\t\t{ salary},\n\t\t{ department}\n\t)) ~> Output"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/transform sass')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "outputSassfile",
+								"type": "DatasetReference"
+							},
+							"name": "sourceSass"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "outputSassfile_copy1",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DerivedColumn1"
+						}
+					],
+					"script": "source(output(\n\t\tex_id_str__c as string,\n\t\tName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourceSass\nsourceSass derive(Name = iif(isInteger(substring(Name, 10,11)), substring(Name, 0,10) +substring(Name, 11), Name)) ~> DerivedColumn1\nDerivedColumn1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tex_id_str__c as string,\n\t\tName as string\n\t),\n\tpartitionFileNames:['saasfile.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink1"
 				}
 			},
 			"dependsOn": []
@@ -153,7 +226,224 @@
 				],
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/insert emp to ssdb')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/demo7 - etl salsforce')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "load to sass",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "transfrom",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SalesforceSink",
+								"writeBatchSize": 5000,
+								"writeBehavior": "upsert",
+								"externalIdFieldName": "ex_id__c",
+								"ignoreNullValues": true
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "ex_id__c",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ex_id__c",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Name",
+											"type": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "outputSassfile",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SalesforceObject1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "copy to local",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SalesforceSource",
+								"readBehavior": "query"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "ex_id__c",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ex_id__c",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SalesforceObject1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "outputSassfile",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "transfrom",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "copy to local",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "transform sass",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceSass": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/transform sass')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/demo1TumblingWindowTriger')]",
