@@ -20,11 +20,11 @@
 		},
 		"schema": [
 			{
-				"name": "ex_id_str__c",
+				"name": "id",
 				"type": "String"
 			},
 			{
-				"name": "Name",
+				"name": "name",
 				"type": "String"
 			}
 		]
