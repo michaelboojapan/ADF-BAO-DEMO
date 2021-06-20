@@ -31,6 +31,7 @@
 						}
 					},
 					"enableStaging": false,
+					"dataIntegrationUnits": 16,
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
@@ -102,7 +103,7 @@
 						"type": "DataFlowReference"
 					},
 					"compute": {
-						"coreCount": 8,
+						"coreCount": 144,
 						"computeType": "General"
 					},
 					"traceLevel": "Fine"
@@ -148,6 +149,7 @@
 					},
 					"enableStaging": false,
 					"validateDataConsistency": false,
+					"dataIntegrationUnits": 8,
 					"translator": {
 						"type": "TabularTranslator",
 						"mappings": [
