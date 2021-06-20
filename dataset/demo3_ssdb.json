@@ -1,20 +1,6 @@
 {
 	"name": "demo3_ssdb",
 	"properties": {
-		"linkedServiceName": {
-			"referenceName": "AzureSqlDatabaseDemo3",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"username": {
-					"value": "@dataset().db_username",
-					"type": "Expression"
-				},
-				"passsword": {
-					"value": "@dataset().db_password",
-					"type": "Expression"
-				}
-			}
-		},
 		"parameters": {
 			"db_username": {
 				"type": "string"

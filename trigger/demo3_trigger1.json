@@ -3,19 +3,7 @@
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipelines": [
-			{
-				"pipelineReference": {
-					"referenceName": "demo3 - parameterize",
-					"type": "PipelineReference"
-				},
-				"parameters": {
-					"param_db_username": "bao",
-					"param_db_password": "Mb864273",
-					"param_db_tbl_name": "employees"
-				}
-			}
-		],
+		"pipelines": [],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
