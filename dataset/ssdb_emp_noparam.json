@@ -1,10 +1,6 @@
 {
 	"name": "ssdb_emp_noparam",
 	"properties": {
-		"linkedServiceName": {
-			"referenceName": "AzureSqlDatabaseWithNoParam",
-			"type": "LinkedServiceReference"
-		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
