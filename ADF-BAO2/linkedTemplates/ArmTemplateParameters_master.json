@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ADF-BAO2"
+		},
+		"AzureBlobStorageBao_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabaseDemo3_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabaseWithNoParam_connectionString": {
+			"value": ""
+		},
+		"Salesforce1_password": {
+			"value": ""
+		},
+		"Salesforce1_securityToken": {
+			"value": ""
+		},
+		"Salesforce1_properties_typeProperties_environmentUrl": {
+			"value": "https://floboard2-dev-ed.my.salesforce.com"
+		},
+		"Salesforce1_properties_typeProperties_username": {
+			"value": "etl.dev.user001@gmail.com"
+		},
+		"demo2EventBasedTrigger_properties_typeProperties_scope": {
+			"value": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
+		},
+		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username": {
+			"value": "bao"
+		},
+		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_password": {
+			"value": "Mb864273"
+		},
+		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name": {
+			"value": "employees"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}

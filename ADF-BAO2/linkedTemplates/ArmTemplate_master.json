@@ -1,0 +1,139 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "データ ファクトリ名",
+			"defaultValue": "ADF-BAO2"
+		},
+		"AzureBlobStorageBao_connectionString": {
+			"type": "secureString",
+			"metadata": "'AzureBlobStorageBao' の 'connectionString' のセキュリティで保護された文字列"
+		},
+		"AzureSqlDatabaseDemo3_connectionString": {
+			"type": "secureString",
+			"metadata": "'AzureSqlDatabaseDemo3' の 'connectionString' のセキュリティで保護された文字列"
+		},
+		"AzureSqlDatabaseWithNoParam_connectionString": {
+			"type": "secureString",
+			"metadata": "'AzureSqlDatabaseWithNoParam' の 'connectionString' のセキュリティで保護された文字列"
+		},
+		"Salesforce1_password": {
+			"type": "secureString",
+			"metadata": "'Salesforce1' の 'password' のセキュリティで保護された文字列"
+		},
+		"Salesforce1_securityToken": {
+			"type": "secureString",
+			"metadata": "'Salesforce1' の 'securityToken' のセキュリティで保護された文字列"
+		},
+		"Salesforce1_properties_typeProperties_environmentUrl": {
+			"type": "string",
+			"defaultValue": "https://floboard2-dev-ed.my.salesforce.com"
+		},
+		"Salesforce1_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "etl.dev.user001@gmail.com"
+		},
+		"demo2EventBasedTrigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/a2852655-9338-4170-a12f-7c739dd1b7c4/resourceGroups/RG-BAO/providers/Microsoft.Storage/storageAccounts/storageaccounttest1"
+		},
+		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username": {
+			"type": "string",
+			"defaultValue": "bao"
+		},
+		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_password": {
+			"type": "string",
+			"defaultValue": "Mb864273"
+		},
+		"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name": {
+			"type": "string",
+			"defaultValue": "employees"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "リンクされた ARM テンプレートを含むストレージ アカウントの URI"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "リンクされた ARM テンプレートを格納するストレージ アカウントへの SAS トークン"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "ADF-BAO2_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureBlobStorageBao_connectionString": {
+						"value": "[parameters('AzureBlobStorageBao_connectionString')]"
+					},
+					"AzureSqlDatabaseDemo3_connectionString": {
+						"value": "[parameters('AzureSqlDatabaseDemo3_connectionString')]"
+					},
+					"AzureSqlDatabaseWithNoParam_connectionString": {
+						"value": "[parameters('AzureSqlDatabaseWithNoParam_connectionString')]"
+					},
+					"Salesforce1_password": {
+						"value": "[parameters('Salesforce1_password')]"
+					},
+					"Salesforce1_securityToken": {
+						"value": "[parameters('Salesforce1_securityToken')]"
+					},
+					"Salesforce1_properties_typeProperties_environmentUrl": {
+						"value": "[parameters('Salesforce1_properties_typeProperties_environmentUrl')]"
+					},
+					"Salesforce1_properties_typeProperties_username": {
+						"value": "[parameters('Salesforce1_properties_typeProperties_username')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "ADF-BAO2_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username": {
+						"value": "[parameters('demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_username')]"
+					},
+					"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_password": {
+						"value": "[parameters('demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_password')]"
+					},
+					"demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name": {
+						"value": "[parameters('demo3_trigger1_properties_demo3 - parameterize_parameters_param_db_tbl_name')]"
+					},
+					"demo2EventBasedTrigger_properties_typeProperties_scope": {
+						"value": "[parameters('demo2EventBasedTrigger_properties_typeProperties_scope')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ADF-BAO2_ArmTemplate_0')]"
+			]
+		}
+	]
+}
