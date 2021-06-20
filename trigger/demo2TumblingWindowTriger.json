@@ -4,12 +4,6 @@
 		"description": "run every hour from 06/12 -06/14, depends on trigger \"demo1TumblingWindowTrigger\"",
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipeline": {
-			"pipelineReference": {
-				"referenceName": "demo2 - dataflow",
-				"type": "PipelineReference"
-			}
-		},
 		"type": "TumblingWindowTrigger",
 		"typeProperties": {
 			"frequency": "Hour",
